@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<style>
+@keyframes cong
+{
+from {opacity: 0.5;}
+to {opacity: 1;}
+}
+
+@-webkit-keyframes cong
+{
+from {opacity: 0.5;}
+to {opacity: 1;}
+}
+
+</style>
+<script>
+
+	var count = 16;
+	
+	var finalImgList 
+	
+	/* generate random number between 1 && 16 */
+	function r(){
+       var r_array = new Array();
+       var a;
+       for(var i=0;i<16;){
+           a = Math.floor(Math.random()*16)+1;
+           if(r_array.indexOf(a)== -1)
+           {
+              r_array.push(a);
+              i++;
+           }
+       }
+       return r_array;
+    }
+    
+    function getImgPositionId(Img)
+    {
+    	return IdIdx = (Img.id).substring(3, (Img.id).length);
+    }
+    
+    function getImgNameId(Img)
+    {
+    	var ImgPath = Img.src.split("/");  
+    	var ImgName = ImgPath.pop();
+		var ImgIdx = ((ImgName.split("."))[0].split("_")).pop(); 
+		return ImgIdx;
+    }
+    
+    function congratulation()
+    {
+    	
+    	var imgs = document.getElementsByClassName("img");
+    	
+    	for(var i = 0; i<imgs.length;i++)
+    	{
+    	   imgs[i].style.border = "0px";
+    	   imgs[i].style.width = "192px";
+    	   imgs[i].style.height = "144px";
+    	   
+    	   imgs[i].style.animation = "cong 8s";
+    	   imgs[i].style["-webkit-animation"] = "cong 8s";
+    	   imgs[i].style.opacity = "1";
+    	   
+    	}
+    	
+    	var frm = document.getElementById("fullimg");
+    	frm.style.width = "768px";
+    	frm.style.height = "576px";
+    	
+    }
+    
+    /* ============================================== */
+    
+    function allowDrop(ev)
+    {
+        ev.preventDefault();
+    }
+
+    function drag(ev)
+    {
+        ev.dataTransfer.setData("Text",ev.target.id);   
+    }
+
+    function drop(ev)
+    {
+        ev.preventDefault();
+        var data=ev.dataTransfer.getData("Text");
+        
+        var srcImg = document.getElementById(data); 
+        var tgtImg = ev.target; 
+        
+        if(tgtImg.getAttribute("draggable") == "false")
+        {
+        	return;
+        }
+                       
+        var temp = srcImg.src;
+        srcImg.src = tgtImg.src;
+        tgtImg.src = temp;  
+        
+        var srcImgIdx = getImgNameId(srcImg);  
+        var tgtImgIdx = getImgNameId(tgtImg);      
+                        
+        srcIdIdx = getImgPositionId(srcImg);
+        tgtIdIdx = getImgPositionId(tgtImg);
+        
+        var corrected = false;
+        
+        if(srcIdIdx == srcImgIdx){
+        	count--; 
+        	corrected = true;
+        	srcImg.setAttribute("draggable","false");        	 
+        	srcImg.style.opacity = 0.5;     	     	       	
+        }
+        
+        if(tgtIdIdx == tgtImgIdx){
+        	count--;
+        	corrected = true;
+        	tgtImg.setAttribute("draggable","false");
+        	tgtImg.style.opacity = 0.5;      	
+        }    
+        
+        if(count > 0 && corrected === true)
+        {
+        	document.getElementById("result").innerHTML = "You got " + count + " remained";
+
+        }
+        
+        if(count == 0)
+        {
+        	document.getElementById("result").innerHTML = "Congratulations!";
+        	congratulation();        	
+        }  
+
+    }
+
+	function display()
+	{
+        
+        var allimg = document.getElementById("fullimg");
+                    
+        var randomList = r();
+        
+        for(var i = 0; i < 16; i++){
+
+            var newimg=document.createElement("img");
+            
+            newimg.setAttribute("src","img/img_"+randomList[i]+".png");
+            var id = i+1;
+            
+            newimg.id="img"+ id;
+            newimg.className = "img";
+
+            newimg.style.border = "1px solid white";
+            newimg.style.float ="left";
+            newimg.style.width = "192px";
+            newimg.style.height = "144px";
+            
+            if(randomList[i] === id) 
+            {
+            	count--;
+            	newimg.setAttribute("draggable","false");
+            	newimg.style.opacity = 0.5;
+            }
+            else 
+            {
+				newimg.setAttribute("draggable","true");
+				newimg.addEventListener("dragstart", drag, false);
+				newimg.addEventListener("dragover", allowDrop, false);
+				newimg.addEventListener("drop", drop, false);            	
+            }
+            
+            allimg.appendChild(newimg);
+        }
+        
+        document.getElementById("result").innerHTML = "You got " + count + " remained";
+
+	}
+
+</script>
+</head>
+
+<body style = "background-image:url(bg.jpg);background-repeat:no-repeat;" onload="display()">
+
+<p id="result" style="margin:50px auto 50px auto;border:3px solid red;padding:20px;
+font:italic bold 30px/30px Georgia,serif;text-align:center;width:400px;color:white;"></p>
+
+<div id="fullimg" style="background-color: white;margin:10px auto 100px auto;width:776px;height:584px;border: 3px solid #333;">
+    
+</div>
+
+
+</body>
+</html>
